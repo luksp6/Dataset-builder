@@ -1,16 +1,18 @@
+from Parser import Parser
+from categorias.Luchadora import Luchadora
+from secciones.Recompensa import Recompensa
+from AdminConcurrencia import AdminConcurrencia
+from dataset.FileDataset import FileDataset
+
 from pathlib import Path
-from concreto.parser.Parser import Parser
-from concreto.categorias.Luchadora import Luchadora
-from concreto.secciones.Recompensa import Recompensa
-from concreto.concurrencia.AdminConcurrencia import AdminConcurrencia
-from concreto.dataset.FileDataset import FileDataset
 
 import atexit
 import os
 
 
 INPUT_DIR = Path("C:/Desarrollo/AO/FS-WIKI-2024")
-OUTPUT_DIR = Path(__file__).resolve().parent / "Salida"
+STRUCT_FILE = Path("wikiPages.json")
+OUTPUT_DIR = Path(__file__).resolve().parent.parent / "Salida"
 
 if __name__ == "__main__":
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -27,17 +29,12 @@ if __name__ == "__main__":
 
     # Ejecucion
     executor = AdminConcurrencia(os.cpu_count())
-    futures = [
-                executor.submit(parser.run)
-                for parser in parser_list]
-    
-    for future in futures:
-        try:
-            result = future.result()
-            if result:
-                dataset.add_bulk(result.to_json(OUTPUT_DIR))
-        except Exception as e:
-            print(f"⚠️ Error en parser: {e}")
+    tareas = [(parser.run, ()) for parser in parser_list]
+    results = executor.collect(tareas)
+    for result in results:
+        dataset.add_bulk(result.to_json(OUTPUT_DIR))
+        
     dataset.to_json(OUTPUT_DIR)
+    print("Ejecucion finalizada.")
 
     atexit.register(lambda: AdminConcurrencia.get_instance().shutdown())

@@ -1,8 +1,8 @@
-from abstracto.Runnable import Runnable
-from concreto.categorias.Categoria import Categoria
-from concreto.concurrencia.AdminConcurrencia import AdminConcurrencia
-from concreto.dataset.CatDataset import CatDataset
-from concreto.dataset.FileDataset import FileDataset
+from utils.Runnable import Runnable
+from categorias.Categoria import Categoria
+from AdminConcurrencia import AdminConcurrencia
+from dataset.CatDataset import CatDataset
+from dataset.FileDataset import FileDataset
 
 import os
 import re
@@ -32,28 +32,23 @@ class Parser(Runnable):
 
 
     def run(self, *args, **kwargs):
-        print("En parser.run()")
-        executor = AdminConcurrencia(self._categoria.get_num_secciones())        
+        executor = AdminConcurrencia.get_instance(self._categoria.get_num_secciones())        
         self._output = CatDataset(self._nombre)
         working_path = os.path.join(self._input_dir, self._nombre)
         for file in os.listdir(working_path):
             if not file.endswith(".md"):
                 continue            
-            file_dataset = FileDataset(file.removesuffix(".md"))            
-            print("Archivo: ", file)
+            file_dataset = FileDataset(file.removesuffix(".md"))
             content = self._get_target_content(os.path.join(working_path, file))
-            futures = [
-                executor.submit(seccion.run, content)
-                for seccion in self._categoria]
             
-            for future in futures:
-                try:
-                    result = future.result()
-                    if result:                        
-                        file_dataset.add(result)
-                except Exception as e:
-                    print(f"⚠️ Error en sección: {e}")  
-            self._output.add(file_dataset)          
+            tareas = [(seccion.run, (content,)) for seccion in self._categoria]
+            resultados = executor.collect(tareas)
+            
+            for result in resultados:
+                file_dataset.add(result)
+            
+            self._output.add(file_dataset)
+              
         return self._output
 
     

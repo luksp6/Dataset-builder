@@ -1,6 +1,6 @@
 import re
 
-from abstracto.Runnable import Runnable
+from utils.Runnable import Runnable
 
 class Seccion(Runnable):
 

@@ -1,4 +1,4 @@
-from abstracto.Seccion import Seccion
+from secciones.Seccion import Seccion
 
 class Categoria():
         

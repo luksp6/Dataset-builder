@@ -1,5 +1,5 @@
-from abstracto.Seccion import Seccion
-from concreto.categorias.Categoria import Categoria
+from secciones.Seccion import Seccion
+from categorias.Categoria import Categoria
 
 class Luchadora(Categoria):
 

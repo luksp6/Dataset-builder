@@ -1,4 +1,4 @@
-from abstracto.Dataset import Dataset
+from dataset.Dataset import Dataset
 
 import os
 

@@ -1,5 +1,5 @@
-from abstracto.Dataset import Dataset
-from concreto.dataset.Entrada import Entrada
+from dataset.Dataset import Dataset
+from dataset.Entrada import Entrada
 
 import json, os
 

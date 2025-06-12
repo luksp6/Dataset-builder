@@ -1,6 +1,6 @@
 from multiprocessing import Queue
-from abstracto.Seccion import Seccion
-from concreto.dataset.Entrada import Entrada
+from secciones.Seccion import Seccion
+from dataset.Entrada import Entrada
 
 class Recompensa(Seccion):
 
