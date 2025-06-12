@@ -8,6 +8,11 @@ class VidaMana(Seccion):
     def run(self, *args, **kwargs):
         content = args[0] if args else None
         filename = args[1] if args else ""
+        if content:
+            print(content)
+        else:
+            return None
+
         return None
 
         equipamiento = self._extraer_equipamiento(content)

@@ -8,20 +8,23 @@ class Modificadores(Seccion):
     def run(self, *args, **kwargs):
         content = args[0] if args else None
         filename = args[1] if args else ""
-        return None
 
-        equipamiento = self._extraer_equipamiento(content)
-        print(equipamiento)
-
+        print(content)
         if content:
-            return [Entrada(
-                    instruction=f"¿Cuál es el mejor equipamiento que puede usar un {filename}?",
-                    input=content,
-                    output=f"Un buen {filename} viste {equipamiento}")]
-        else:
-            return None
+            modificadores = self._extraer_modificadores(content)
+            entradas = []
+            for modificador in modificadores:
+                nombre, valor = map(str.strip, modificador.split("|", 1))
+                entradas.append(Entrada(
+                        instruction=f"¿Cuánta {nombre} tiene un {filename}?",
+                        input=content,
+                        output=f"La {nombre} del {filename} es {valor}"))
+            return entradas
         
-    def _extraer_equipamiento(self, bloque: str) -> list:
-        equip = re.findall(r"\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|", bloque)
-        nombres = [nombre for _, nombre, _ in equip if nombre.lower() != "nombre"]
-        return list(dict.fromkeys(nombres))
+    def _extraer_modificadores(self, tabla: str) -> list[str]:
+        filas = re.findall(r"\|\s*([^\|]+?)\s*\|\s*([^\|]+?)\s*\|", tabla)
+        return [
+            f"{nombre.strip()} | {valor.strip()}"
+            for nombre, valor in filas
+            if nombre.strip() != "---" and valor.strip() != "---"
+        ]

@@ -22,14 +22,14 @@ if __name__ == "__main__":
     # Parser
     parser_luchadora = Parser(INPUT_DIR,
                               "Clases luchadoras",
-                              Luchadora({
+                              Luchadora([
                                   DescripcionClase(""),
                                   Recompensa("Recompensas"),
                                   Equipamiento("Equipamiento"),
                                   HechizosEspeciales("Hechizos especiales"),
                                   Modificadores("Modificadores"),
                                   VidaMana("Promedios de vida y mana")
-                                  }))
+                                  ]))
     
     parser_list = [parser_luchadora]
 
