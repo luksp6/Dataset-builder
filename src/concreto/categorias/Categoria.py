@@ -9,3 +9,6 @@ class Categoria():
 
     def __iter__(self):
         return iter(self._secciones)
+    
+    def get_num_secciones(self) -> int:
+        return len(self._secciones)

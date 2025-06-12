@@ -1,9 +1,14 @@
+from multiprocessing import Queue
 from abstracto.Seccion import Seccion
 from concreto.dataset.Entrada import Entrada
 
 class Recompensa(Seccion):
 
-    def run(self, content, queue):
+    def run(self, *args, **kwargs):
+        content = args[0] if args else ""
+
         seccion = self._extraer_seccion(content)
         if seccion:
-            queue.put(Entrada("¿Qué recompensas obtiene el personaje?", seccion, seccion))
+            return Entrada(instruction="¿Qué recompensas obtiene el personaje?", input=seccion, output=seccion)
+        else:
+            return None
