@@ -29,7 +29,27 @@ class Parser(Runnable):
     
     def get_nombre(self) -> str:
         return self._nombre
+    
+    def _sanitizar(self, text:str) -> str:
+        # Eliminar etiquetas HTML <br>, <br/>, <br />
+        text = re.sub(r"<br\s*/?>", "\n", text)
 
+        # Eliminar imágenes ![](url)
+        text = re.sub(r"!\[.*?\]\(.*?\)", "", text)
+
+        # Eliminar enlaces [texto](url) → reemplazar por "texto"
+        text = re.sub(r"\[(.*?)\]\(.*?\)", r"\1", text)
+
+        # Eliminar negritas y itálicas
+        text = re.sub(r"\*\*(.*?)\*\*", r"\1", text)
+        text = re.sub(r"\*(.*?)\*", r"\1", text)
+        text = re.sub(r"_(.*?)_", r"\1", text)
+
+        # Eliminar líneas vacías múltiples
+        text = re.sub(r"\n\s*\n", "\n\n", text)
+
+        # Strip general
+        return text.strip()
 
     def run(self, *args, **kwargs):
         executor = AdminConcurrencia.get_instance(self._categoria.get_num_secciones())        
@@ -37,15 +57,15 @@ class Parser(Runnable):
         working_path = os.path.join(self._input_dir, self._nombre)
         for file in os.listdir(working_path):
             if not file.endswith(".md"):
-                continue            
-            file_dataset = FileDataset(file.removesuffix(".md"))
-            content = self._get_target_content(os.path.join(working_path, file))
-            
-            tareas = [(seccion.run, (content,)) for seccion in self._categoria]
+                continue 
+            filename = file.removesuffix(".md")           
+            file_dataset = FileDataset(filename)
+            content = self._sanitizar(self._get_target_content(os.path.join(working_path, file)))
+            tareas = [(seccion.run, (content, filename)) for seccion in self._categoria]
             resultados = executor.collect(tareas)
             
             for result in resultados:
-                file_dataset.add(result)
+                file_dataset.add_bulk(result)
             
             self._output.add(file_dataset)
               

@@ -14,9 +14,10 @@ class FileDataset(Dataset):
         return entradas_json
     
     def add_bulk(self, entradas:list):
-        for entrada in entradas:
-            self._entradas.append(Entrada(from_dict=entrada))
-
-    
-
-    
+            for entrada in entradas:
+                if isinstance(entrada, Entrada):
+                    self._entradas.append(entrada)
+                elif isinstance(entrada, dict):
+                    self._entradas.append(Entrada(from_dict=entrada))
+                else:
+                    raise TypeError("Los elementos deben ser Entrada o dicts convertibles.")
