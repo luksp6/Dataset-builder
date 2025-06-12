@@ -6,12 +6,11 @@ import re
 class Recompensa(Seccion):
 
     def run(self, *args, **kwargs):
-        content = args[0] if args else ""
+        content = args[0] if args else None
         filename = args[1] if args else ""
 
-        bloque = self._extraer_seccion(content)
-        if bloque:
-            niveles = self._extraer_niveles_como_dict(bloque)
+        if content:
+            niveles = self._extraer_niveles(content)
 
             entradas = []
             for nivel, recompensas in niveles.items():
@@ -28,14 +27,7 @@ class Recompensa(Seccion):
         
         return None
 
-    def _extraer_seccion(self, contenido: str) -> str:
-        contenido = contenido.replace("<br />", "\n").replace("<br/>", "\n").replace("<br>", "\n")
-        # Extrae desde "Recompensas" hasta el siguiente encabezado en MAYÚSCULAS o fin del texto
-        pattern = rf"{self._nombre}\s*\n(.*?)(?=\n[A-ZÁÉÍÓÚÑ ]{{3,}}\n|\Z)"
-        match = re.search(pattern, contenido, re.DOTALL | re.IGNORECASE)
-        return match.group(1).strip() if match else ""
-
-    def _extraer_niveles_como_dict(self, bloque: str) -> dict:
+    def _extraer_niveles(self, bloque: str) -> dict:
         niveles = ["Nivel 18", "Nivel 25", "Nivel 34"]
         resultado = {}
 

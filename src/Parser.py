@@ -27,6 +27,31 @@ class Parser(Runnable):
         content = re.sub(r"!\[.*?\]\(.*?\)", "", content)  # eliminar imágenes
         return content
     
+    def _dividir_por_secciones(self, contenido: str) -> dict[str, str]:
+        """
+        Divide el contenido en secciones usando los nombres de las secciones conocidas.
+        Devuelve un dict: { "Seccion 1": bloque, "Seccion 2": bloque, ... }
+        """
+        nombres = [seccion.get_nombre() for seccion in self._categoria]
+        nombres_escapados = [re.escape(nombre) for nombre in nombres if nombre]
+
+        pattern = rf"^({'|'.join(nombres_escapados)})\s*$"
+        secciones = {}
+        matches = list(re.finditer(pattern, contenido, re.MULTILINE))
+
+        # 1️⃣ Sección inicial (sin título explícito)
+        if matches and matches[0].start() > 0:
+            secciones[""] = contenido[:matches[0].start()].strip()
+
+        # 2️⃣ Resto de secciones con encabezado
+        for i, match in enumerate(matches):
+            nombre = match.group(1)
+            inicio = match.end()
+            fin = matches[i + 1].start() if i + 1 < len(matches) else len(contenido)
+            secciones[nombre] = contenido[inicio:fin].strip()
+
+        return secciones
+
     def get_nombre(self) -> str:
         return self._nombre
     
@@ -60,8 +85,13 @@ class Parser(Runnable):
                 continue 
             filename = file.removesuffix(".md")           
             file_dataset = FileDataset(filename)
-            content = self._sanitizar(self._get_target_content(os.path.join(working_path, file)))
-            tareas = [(seccion.run, (content, filename)) for seccion in self._categoria]
+            contenido_sanitizado = self._sanitizar(self._get_target_content(os.path.join(working_path, file)))
+            bloques = self._dividir_por_secciones(contenido_sanitizado)
+            tareas = []
+            for seccion in self._categoria:
+                nombre = seccion._nombre
+                bloque = bloques.get(nombre, "")
+                tareas.append((seccion.run, (bloque, filename)))
             resultados = executor.collect(tareas)
             
             for result in resultados:

@@ -1,7 +1,8 @@
 from Parser import Parser
 from categorias.Luchadora import Luchadora
-from secciones.Recompensa import Recompensa
-from secciones.DescripcionClase import DescripcionClase
+
+from secciones import DescripcionClase, Recompensa, Equipamiento, HechizosEspeciales, Modificadores, VidaMana
+
 from AdminConcurrencia import AdminConcurrencia
 from dataset.FileDataset import FileDataset
 
@@ -18,16 +19,17 @@ OUTPUT_DIR = Path(__file__).resolve().parent.parent / "Salida"
 if __name__ == "__main__":
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # Secciones    
-    desc_clase = DescripcionClase("Title")
-    recompensa = Recompensa("Recompensas")
-
     # Parser
     parser_luchadora = Parser(INPUT_DIR,
                               "Clases luchadoras",
                               Luchadora({
-                                  desc_clase,
-                                  recompensa}))
+                                  DescripcionClase(""),
+                                  Recompensa("Recompensas"),
+                                  Equipamiento("Equipamiento"),
+                                  HechizosEspeciales("Hechizos especiales"),
+                                  Modificadores("Modificadores"),
+                                  VidaMana("Promedios de vida y mana")
+                                  }))
     
     parser_list = [parser_luchadora]
 
