@@ -1,7 +1,7 @@
 from Parser import Parser
 from categorias.Luchadora import Luchadora
 
-from secciones import DescripcionClase, Recompensa, Equipamiento, HechizosEspeciales, Modificadores, VidaMana
+from secciones import DescripcionClase, Recompensa, Equipamiento, HechizosEspeciales, Modificadores, VidaMana, Vida
 
 from AdminConcurrencia import AdminConcurrencia
 from dataset.FileDataset import FileDataset
@@ -20,8 +20,8 @@ if __name__ == "__main__":
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # Parser
-    parser_luchadora = Parser(INPUT_DIR,
-                              "Clases luchadoras",
+    parser_luchadora_mana = Parser(INPUT_DIR,
+                              "Clases luchadoras (con mana)",
                               Luchadora([
                                   DescripcionClase(""),
                                   Recompensa("Recompensas"),
@@ -31,7 +31,17 @@ if __name__ == "__main__":
                                   VidaMana("Promedios de vida y mana")
                                   ]))
     
-    parser_list = [parser_luchadora]
+    parser_luchadora_sin_mana = Parser(INPUT_DIR,
+                              "Clases luchadoras (sin mana)",
+                              Luchadora([
+                                  DescripcionClase(""),
+                                  Recompensa("Recompensas"),
+                                  Equipamiento("Equipamiento"),
+                                  Modificadores("Modificadores"),
+                                  Vida("Promedios de vida")
+                                  ]))
+    
+    parser_list = [parser_luchadora_mana, parser_luchadora_sin_mana]
 
     # Dataset
     dataset = FileDataset(INPUT_DIR.name)

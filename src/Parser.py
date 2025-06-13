@@ -30,25 +30,28 @@ class Parser(Runnable):
     def _dividir_por_secciones(self, contenido: str) -> dict[str, str]:
         """
         Divide el contenido en secciones usando los nombres de las secciones conocidas.
-        Devuelve un dict: { "Seccion 1": bloque, "Seccion 2": bloque, ... }
+        Devuelve un dict: { "Sección 1": bloque, "Sección 2": bloque, ... }
         """
         nombres = [seccion.get_nombre() for seccion in self._categoria]
         nombres_escapados = [re.escape(nombre) for nombre in nombres if nombre]
 
-        pattern = rf"^({'|'.join(nombres_escapados)})\s*$"
-        secciones = {}
-        matches = list(re.finditer(pattern, contenido, re.MULTILINE))
+        # Crea un patrón para detectar encabezados con o sin negritas
+        pattern = rf"^(?:\*\*)?\s*({'|'.join(nombres_escapados)})\s*(?:\*\*)?\s*$"
+        matches = list(re.finditer(pattern, contenido, re.MULTILINE | re.IGNORECASE))
 
-        # 1️⃣ Sección inicial (sin título explícito)
+        secciones = {}
+
+        # Si hay contenido antes del primer encabezado, lo asignamos a la sección sin nombre
         if matches and matches[0].start() > 0:
             secciones[""] = contenido[:matches[0].start()].strip()
 
-        # 2️⃣ Resto de secciones con encabezado
         for i, match in enumerate(matches):
-            nombre = match.group(1)
+            nombre = match.group(1).strip()
             inicio = match.end()
             fin = matches[i + 1].start() if i + 1 < len(matches) else len(contenido)
-            secciones[nombre] = contenido[inicio:fin].strip()
+
+            bloque = contenido[inicio:fin].strip()
+            secciones[nombre] = bloque
 
         return secciones
 
@@ -89,8 +92,7 @@ class Parser(Runnable):
             bloques = self._dividir_por_secciones(contenido_sanitizado)
             tareas = []
             for seccion in self._categoria:
-                nombre = seccion._nombre
-                bloque = bloques.get(nombre, "")
+                bloque = bloques.get(seccion._nombre, "")
                 tareas.append((seccion.run, (bloque, filename)))
             resultados = executor.collect(tareas)
             

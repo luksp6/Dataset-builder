@@ -3,13 +3,25 @@ from dataset.Entrada import Entrada
 
 import re
 
-class VidaMana(Seccion):
+class Vida(Seccion):
 
     def run(self, *args, **kwargs):
         content = args[0] if args else None
         filename = args[1] if args else ""
+
+        print("//////")
+        print(filename)
+        print(content)
+        print("//")
+
+
         if content:
             promedios = self._extraer_filas_tabla(content)
+    
+            for promedio in promedios:
+                print(promedio)
+                print()
+
             encabezado = list(map(str.strip, promedios[0].split("|")))
             entradas = []
             for promedio in promedios[2:]:
@@ -27,30 +39,32 @@ class VidaMana(Seccion):
                     valor = columnas[i]
 
                     entradas.append(Entrada(
-                        instruction=f"Cuánta vida y mana tiene un {filename} {columnas[0]} al {nivel}?",
+                        instruction=f"¿Cuánta vida tiene un {filename} {columnas[0]} al {nivel}?",
                         input=content,
-                        output=f"Un {filename} {columnas[0]} al {nivel} se espera que tenga en promedio {valor}. (sin tener en cuenta las recompensas de vida y mana)"
+                        output=f"Un {filename} {columnas[0]} al {nivel} se espera que tenga en promedio {valor}. (sin tener en cuenta las recompensas de vida)"
                     ))
             return entradas
         else:
             return None
         
     def _extraer_filas_tabla(self, tabla: str) -> list[str]:
-        filas = re.findall(
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*\|',
-            tabla
-        )
-        return [
-            " | ".join([
-                raza.strip(), promedio.strip(), l13.strip(), l25.strip(),
-                l30.strip(), l35.strip(), l40.strip(), l45.strip()
-            ])
-            for raza, promedio, l13, l25, l30, l35, l40, l45 in filas
-        ]
+        lineas = [line.strip() for line in tabla.splitlines() if line.strip()]
+        filas = []
+        raza_pendiente = None
+
+        for linea in lineas:
+            if set(linea) <= {"|", "-", " "}:
+                continue  # Ignorar separadores
+
+            celdas = [c.strip() for c in linea.strip("|").split("|") if c.strip()]
+            if len(celdas) == 1:
+                raza_pendiente = celdas[0]
+            elif len(celdas) >= 2:
+                if raza_pendiente:
+                    fila = [raza_pendiente] + celdas
+                    raza_pendiente = None
+                else:
+                    fila = celdas
+                filas.append(" | ".join(fila))
+
+        return filas

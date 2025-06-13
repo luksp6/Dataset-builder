@@ -4,3 +4,4 @@ from .Equipamiento import Equipamiento
 from .HechizosEspeciales import HechizosEspeciales
 from .Modificadores import Modificadores
 from .VidaMana import VidaMana
+from .Vida import Vida

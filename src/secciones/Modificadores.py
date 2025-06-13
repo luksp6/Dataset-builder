@@ -9,7 +9,6 @@ class Modificadores(Seccion):
         content = args[0] if args else None
         filename = args[1] if args else ""
 
-        print(content)
         if content:
             modificadores = self._extraer_modificadores(content)
             entradas = []
