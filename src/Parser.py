@@ -1,4 +1,4 @@
-from utils.Runnable import Runnable
+from utils import Runnable
 from categorias.Categoria import Categoria
 from AdminConcurrencia import AdminConcurrencia
 from dataset.CatDataset import CatDataset
@@ -21,10 +21,12 @@ class Parser(Runnable):
         self._output = None
 
     def _get_target_content(self, target_path) -> str:
+        """
+        Abre el archivo ubicado en el path recibido como parámetro.
+        Devuelve un str con el contenido del archivo.
+        """
         with open(target_path, encoding="utf-8") as f:
             content = f.read()
-        content = re.sub(r"<br\s*/?>", "\n", content)
-        content = re.sub(r"!\[.*?\]\(.*?\)", "", content)  # eliminar imágenes
         return content
     
     def _dividir_por_secciones(self, contenido: str) -> dict[str, str]:
@@ -54,11 +56,12 @@ class Parser(Runnable):
             secciones[nombre] = bloque
 
         return secciones
-
-    def get_nombre(self) -> str:
-        return self._nombre
     
-    def _sanitizar(self, text:str) -> str:
+    def _sanitizar(self, text:str) -> str:        
+        """
+        Elimina el formato de un str con contenido MarkDown.
+        Devuelve un str con el contenido en texto plano.
+        """
         # Eliminar etiquetas HTML <br>, <br/>, <br />
         text = re.sub(r"<br\s*/?>", "\n", text)
 
@@ -102,5 +105,3 @@ class Parser(Runnable):
             self._output.add(file_dataset)
               
         return self._output
-
-    

@@ -1,5 +1,6 @@
 from secciones.Seccion import Seccion
 from dataset.Entrada import Entrada
+from utils import md
 
 import re
 
@@ -9,7 +10,7 @@ class VidaMana(Seccion):
         content = args[0] if args else None
         filename = args[1] if args else ""
         if content:
-            promedios = self._extraer_filas_tabla(content)
+            promedios = md.extraer_filas(content)
             encabezado = list(map(str.strip, promedios[0].split("|")))
             entradas = []
             for promedio in promedios[2:]:
@@ -34,23 +35,3 @@ class VidaMana(Seccion):
             return entradas
         else:
             return None
-        
-    def _extraer_filas_tabla(self, tabla: str) -> list[str]:
-        filas = re.findall(
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*'
-            r'\|\s*([^\|]+?)\s*\|',
-            tabla
-        )
-        return [
-            " | ".join([
-                raza.strip(), promedio.strip(), l13.strip(), l25.strip(),
-                l30.strip(), l35.strip(), l40.strip(), l45.strip()
-            ])
-            for raza, promedio, l13, l25, l30, l35, l40, l45 in filas
-        ]

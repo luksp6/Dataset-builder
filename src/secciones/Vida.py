@@ -1,27 +1,14 @@
 from secciones.Seccion import Seccion
 from dataset.Entrada import Entrada
-
-import re
+from utils import md
 
 class Vida(Seccion):
 
     def run(self, *args, **kwargs):
         content = args[0] if args else None
         filename = args[1] if args else ""
-
-        print("//////")
-        print(filename)
-        print(content)
-        print("//")
-
-
         if content:
-            promedios = self._extraer_filas_tabla(content)
-    
-            for promedio in promedios:
-                print(promedio)
-                print()
-
+            promedios = md.extraer_filas(content)
             encabezado = list(map(str.strip, promedios[0].split("|")))
             entradas = []
             for promedio in promedios[2:]:
@@ -46,25 +33,3 @@ class Vida(Seccion):
             return entradas
         else:
             return None
-        
-    def _extraer_filas_tabla(self, tabla: str) -> list[str]:
-        lineas = [line.strip() for line in tabla.splitlines() if line.strip()]
-        filas = []
-        raza_pendiente = None
-
-        for linea in lineas:
-            if set(linea) <= {"|", "-", " "}:
-                continue  # Ignorar separadores
-
-            celdas = [c.strip() for c in linea.strip("|").split("|") if c.strip()]
-            if len(celdas) == 1:
-                raza_pendiente = celdas[0]
-            elif len(celdas) >= 2:
-                if raza_pendiente:
-                    fila = [raza_pendiente] + celdas
-                    raza_pendiente = None
-                else:
-                    fila = celdas
-                filas.append(" | ".join(fila))
-
-        return filas
